@@ -1,0 +1,58 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+// Self-hosted variable fonts: no third-party request, no build-time download.
+import '@fontsource-variable/cormorant-garamond/wght.css';
+import '@fontsource-variable/cormorant-garamond/wght-italic.css';
+import '@fontsource-variable/eb-garamond/wght.css';
+import '@fontsource-variable/eb-garamond/wght-italic.css';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Header sits over a full-bleed image rather than on its own dark bar. */
+  overlay?: boolean;
+  /** Illustration used for social previews, e.g. `hero-hazel`. */
+  art?: string;
+}
+
+const { title, description, overlay = false, art = 'hero-hazel' } = Astro.props;
+
+const site = Astro.site ?? new URL('https://underthehazeltree.com');
+const canonical = new URL(Astro.url.pathname, site);
+const social = new URL(`/img/${art}.svg`, site);
+const fullTitle = title === 'Under the Hazel Tree' ? title : `${title} — Under the Hazel Tree`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title="Under the Hazel Tree" href="/rss.xml" />
+    <meta name="theme-color" content="#232b1b" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Under the Hazel Tree" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={social} />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header overlay={overlay} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

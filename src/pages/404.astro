@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+import Leaf from '../components/Leaf.astro';
+---
+
+<Base title="Not found" description="That path has grown over. Here are some ways back.">
+  <section class="section section--paper error-page">
+    <div class="shell shell--narrow">
+      <p class="eyebrow">Four hundred and four</p>
+      <h1>That path has grown over</h1>
+      <div class="flourish" style="margin-inline: auto; color: var(--gold);"><Leaf size={20} /></div>
+      <p class="lede" style="margin-top: 1.5rem;">
+        Nothing lives at this address. It may have moved, or it may never have been — either way, the hedge has closed
+        over it.
+      </p>
+      <p class="hero__actions" style="justify-content: center;">
+        <a class="button" href="/">Back to the tree</a>
+        <a class="button button--ghost" href="/wander">Wander instead</a>
+      </p>
+    </div>
+  </section>
+</Base>

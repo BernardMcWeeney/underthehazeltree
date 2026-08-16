@@ -1,0 +1,14 @@
+---
+import PieceIndex from '../../components/PieceIndex.astro';
+import { getPieces } from '../../lib/pieces';
+
+const pieces = await getPieces('journal');
+---
+
+<PieceIndex
+  title="Journal"
+  eyebrow="Notes"
+  description="Working notes on writing, wild places, and the everyday magic that lingers in between."
+  art="banner-journal"
+  pieces={pieces}
+/>

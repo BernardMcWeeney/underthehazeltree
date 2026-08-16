@@ -1,0 +1,104 @@
+---
+import Base from '../layouts/Base.astro';
+import SectionHead from '../components/SectionHead.astro';
+import PieceCard from '../components/PieceCard.astro';
+import Leaf from '../components/Leaf.astro';
+import { getAllPieces, getPieces, kindLabel, pieceHref, formatDateShort } from '../lib/pieces';
+
+const recent = (await getAllPieces()).slice(0, 3);
+const poems = (await getPieces('poems')).slice(0, 4);
+---
+
+<Base
+  title="Under the Hazel Tree"
+  description="A place for poems, stories and quiet reflections — written slowly, and best read the same way."
+  overlay
+>
+  <section class="hero">
+    <div class="hero__art">
+      <img src="/img/hero-hazel.svg" alt="" width="1600" height="1000" fetchpriority="high" />
+    </div>
+
+    <div class="shell hero__inner">
+      <h1>Under the<br />Hazel Tree</h1>
+      <div class="flourish"><Leaf size={20} /></div>
+      <p class="hero__tagline">A place for poems, stories, and quiet reflections.</p>
+      <div class="hero__actions">
+        <a class="button" href="/poems/"><Leaf size={16} /> Read the poems</a>
+        <a class="button button--ghost" href="/wander">Wander</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--paper">
+    <div class="shell">
+      <SectionHead eyebrow={'Recent poems & stories'} />
+      <div class="section__body card-grid">
+        {
+          recent.map((piece) => (
+            <PieceCard
+              collection={piece.collection}
+              id={piece.id}
+              title={piece.data.title}
+              excerpt={piece.data.excerpt}
+              art={piece.data.art}
+            />
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <img class="torn" src="/img/torn-edge.svg" alt="" width="1440" height="40" aria-hidden="true" />
+
+  <section class="section section--warm">
+    <div class="shell">
+      <SectionHead eyebrow="From the poems" note="Six at present, and more when they're ready." />
+      <div class="section__body index-list">
+        {
+          poems.map((poem) => (
+            <article class="index-item">
+              <img class="index-item__art" src={`/img/${poem.data.art}.svg`} alt="" width="120" height="84" loading="lazy" />
+              <div>
+                <h2>
+                  <a href={pieceHref(poem.collection, poem.id)}>{poem.data.title}</a>
+                </h2>
+                <p>{poem.data.excerpt}</p>
+              </div>
+              <p class="index-item__meta">{formatDateShort(poem.data.date)}</p>
+            </article>
+          ))
+        }
+      </div>
+      <p class="centred" style="margin-top: 2.5rem;">
+        <a class="button button--ghost" href="/poems/">All poems</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--bark">
+    <div class="shell">
+      <blockquote class="quote">
+        <p>
+          They say nine hazels leaned above the well<br />
+          and everything they dropped, the water learned.
+        </p>
+        <cite>Nine Hazels</cite>
+      </blockquote>
+    </div>
+  </section>
+
+  <section class="section section--paper">
+    <div class="shell shell--narrow centred stack-lg">
+      <div class="section-head">
+        <p class="section-head__rule"><span class="eyebrow">{kindLabel('journal')}</span></p>
+        <h2 style="font-size: clamp(2rem, 4vw, 2.75rem);">Notes from the tree</h2>
+        <p>
+          Working notes on writing, wild places, and the everyday magic that lingers in between — offcuts, mostly, and
+          things that aren't finished.
+        </p>
+        <p><a class="button button--ghost" href="/journal/">Read the journal</a></p>
+      </div>
+    </div>
+  </section>
+</Base>

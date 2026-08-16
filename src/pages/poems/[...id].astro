@@ -1,0 +1,20 @@
+---
+import { render } from 'astro:content';
+import PieceLayout from '../../layouts/Piece.astro';
+import { getPieces } from '../../lib/pieces';
+
+export async function getStaticPaths() {
+  const pieces = await getPieces('poems');
+  return pieces.map((entry, i) => ({
+    params: { id: entry.id },
+    props: { entry, prev: pieces[i - 1], next: pieces[i + 1] },
+  }));
+}
+
+const { entry, prev, next } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<PieceLayout entry={entry} prev={prev} next={next} verse={true}>
+  <Content />
+</PieceLayout>

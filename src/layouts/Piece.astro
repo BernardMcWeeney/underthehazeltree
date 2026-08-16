@@ -1,0 +1,77 @@
+---
+import Base from './Base.astro';
+import { formatDate, kindLabel, pieceHref, type Piece } from '../lib/pieces';
+
+interface Props {
+  entry: Piece;
+  /** Poems keep their line breaks; prose is set as ordinary paragraphs. */
+  verse?: boolean;
+  prev?: Piece;
+  next?: Piece;
+}
+
+const { entry, verse = false, prev, next } = Astro.props;
+const { title, date, excerpt, art, tags } = entry.data;
+---
+
+<Base title={title} description={excerpt} art={art}>
+  <article class="piece">
+    <div class="shell shell--narrow piece__head">
+      <p class="eyebrow">{kindLabel(entry.collection)}</p>
+      <h1>{title}</h1>
+      <p class="piece__meta">
+        <time datetime={date.toISOString()}>{formatDate(date)}</time>
+      </p>
+      <img class="piece__rule" src="/img/ornament-sprig.svg" alt="" width="120" height="40" aria-hidden="true" />
+    </div>
+
+    <div class="shell">
+      <img
+        class="piece__art"
+        src={`/img/${art}.svg`}
+        alt=""
+        width="1600"
+        height="700"
+        fetchpriority="high"
+      />
+    </div>
+
+    <div class="shell shell--narrow">
+      <div class={verse ? 'verse' : 'prose'}>
+        <slot />
+      </div>
+
+      <div class="piece__foot">
+        {
+          tags.length > 0 && (
+            <ul class="tags">
+              {tags.map((tag) => (
+                <li>{tag}</li>
+              ))}
+            </ul>
+          )
+        }
+        <a class="more" href={`/${entry.collection}/`}>All {entry.collection}</a>
+      </div>
+
+      {
+        (prev || next) && (
+          <nav class="pager" aria-label="More pieces">
+            {prev && (
+              <a href={pieceHref(prev.collection, prev.id)}>
+                <span>Previous</span>
+                <strong>{prev.data.title}</strong>
+              </a>
+            )}
+            {next && (
+              <a href={pieceHref(next.collection, next.id)}>
+                <span>Next</span>
+                <strong>{next.data.title}</strong>
+              </a>
+            )}
+          </nav>
+        )
+      }
+    </div>
+  </article>
+</Base>

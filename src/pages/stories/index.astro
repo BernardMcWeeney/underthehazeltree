@@ -1,0 +1,14 @@
+---
+import PieceIndex from '../../components/PieceIndex.astro';
+import { getPieces } from '../../lib/pieces';
+
+const pieces = await getPieces('stories');
+---
+
+<PieceIndex
+  title="Stories"
+  eyebrow="Prose"
+  description="Longer pieces — roads, rivers, uncles, and the things people decline to say directly."
+  art="banner-stories"
+  pieces={pieces}
+/>

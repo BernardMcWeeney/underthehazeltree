@@ -1,0 +1,25 @@
+---
+import type { CollectionKey } from 'astro:content';
+import { kindLabel, pieceHref } from '../lib/pieces';
+
+interface Props {
+  collection: CollectionKey;
+  id: string;
+  title: string;
+  excerpt: string;
+  art: string;
+}
+
+const { collection, id, title, excerpt, art } = Astro.props;
+const href = pieceHref(collection, id);
+---
+
+<article class="card">
+  <img class="card__art" src={`/img/${art}.svg`} alt="" width="88" height="88" loading="lazy" />
+  <div class="card__body">
+    <p class="eyebrow">{kindLabel(collection)}</p>
+    <h3 class="card__title"><a href={href}>{title}</a></h3>
+    <p class="card__excerpt">{excerpt}</p>
+    <span class="more card__more">Read more</span>
+  </div>
+</article>

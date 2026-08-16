@@ -1,0 +1,78 @@
+---
+import Base from '../layouts/Base.astro';
+import Leaf from '../components/Leaf.astro';
+---
+
+<Base
+  title="About"
+  description="About Under the Hazel Tree — who writes it, why it exists, and what you'll find here."
+  art="banner-about"
+  overlay
+>
+  <section class="banner">
+    <img class="banner__art" src="/img/banner-about.svg" alt="" width="1600" height="560" fetchpriority="high" />
+    <div class="shell">
+      <p class="eyebrow">About</p>
+      <h1>Under the Hazel Tree</h1>
+      <p>A small, slow corner of the internet for poems, stories, and quiet reflections.</p>
+    </div>
+  </section>
+
+  <section class="section section--paper">
+    <div class="shell shell--narrow">
+      <div class="prose">
+        <p class="lede">
+          There is a hazel at the end of the garden. It was here before the house had my name on the deeds, and it will
+          outlast the arrangement. Most of what's on this site was thought up standing under it with a cup of tea going
+          cold.
+        </p>
+
+        <p>
+          This is a personal site, in the older sense: no newsletter funnel, no course, nothing to sell. Poems on one
+          shelf, stories on another, and a journal for the offcuts — the notes, the half-thoughts, the things that
+          aren't finished and may never be.
+        </p>
+
+        <h2>Why the hazel</h2>
+
+        <p>
+          In the old stories, nine hazels leaned over the well at the source of the Boyne, and dropped their nuts into
+          the water, and a salmon ate them and took on all the knowledge in the world. Whoever ate the salmon would have
+          it in turn. In the event it went to a boy who burned his thumb on the cooking and put it in his mouth without
+          thinking — which is, in my experience, exactly how knowledge arrives.
+        </p>
+
+        <p>
+          Hazel is also the wood you cut for a walking stick, for a fence, for a diviner's rod. It coppices: cut it back
+          hard and it comes again from the stool, better than before. That seemed like a reasonable thing to name a
+          writing site after.
+        </p>
+
+        <h2>What's here</h2>
+
+        <ul>
+          <li><strong><a href="/poems/">Poems</a></strong> — short pieces, mostly about light, water and weather.</li>
+          <li><strong><a href="/stories/">Stories</a></strong> — longer prose, memory-shaped.</li>
+          <li><strong><a href="/journal/">Journal</a></strong> — working notes, reading, what's flowering.</li>
+        </ul>
+
+        <p>
+          Everything is written by one person and posted when it's ready, which is not a schedule. If you'd like it to
+          come to you, there's an <a href="/rss.xml">RSS feed</a>. If you'd rather be surprised, press
+          <a href="/wander">wander</a> and the site will pick something for you.
+        </p>
+
+        <h2>Getting in touch</h2>
+
+        <p>
+          Corrections, arguments about hurling, and the names of things I've got wrong are all welcome. Replace this
+          paragraph with your own address when you make the site your own.
+        </p>
+      </div>
+
+      <p class="centred" style="margin-top: 3rem;">
+        <a class="button" href="/poems/"><Leaf size={16} /> Start with the poems</a>
+      </p>
+    </div>
+  </section>
+</Base>
