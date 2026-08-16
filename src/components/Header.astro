@@ -1,0 +1,60 @@
+---
+import Leaf from './Leaf.astro';
+
+interface Props {
+  /** True on pages where the header sits on top of a full-bleed image. */
+  overlay?: boolean;
+}
+
+const { overlay = false } = Astro.props;
+const path = Astro.url.pathname;
+
+const links = [
+  { href: '/poems/', label: 'Poems' },
+  { href: '/stories/', label: 'Stories' },
+  { href: '/about/', label: 'About' },
+  { href: '/journal/', label: 'Journal' },
+];
+
+const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+---
+
+<header class:list={['site-header', overlay && 'site-header--over']} data-overlay={overlay ? '' : undefined}>
+  <div class="shell site-header__inner">
+    <a class="wordmark" href="/">
+      <Leaf size={24} />
+      Under the Hazel Tree
+    </a>
+
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+
+    <nav class="nav" id="site-nav" aria-label="Primary">
+      {
+        links.map((link) => (
+          <a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>
+            {link.label}
+          </a>
+        ))
+      }
+      <img class="nav__flourish" src="/img/ornament-sprig-light.svg" alt="" width="120" height="40" aria-hidden="true" />
+    </nav>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('.site-header');
+  const toggle = document.querySelector<HTMLButtonElement>('.nav-toggle');
+  const nav = document.querySelector<HTMLElement>('#site-nav');
+
+  toggle?.addEventListener('click', () => {
+    const open = nav?.classList.toggle('is-open') ?? false;
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+
+  // Only the overlay header changes on scroll; the solid one is already solid.
+  if (header?.dataset.overlay !== undefined) {
+    const onScroll = () => header.classList.toggle('is-stuck', window.scrollY > 24);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+</script>

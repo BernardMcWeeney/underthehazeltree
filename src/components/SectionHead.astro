@@ -1,0 +1,17 @@
+---
+interface Props {
+  eyebrow: string;
+  /** Optional line of italic text under the heading. */
+  note?: string;
+  sprig?: 'gold' | 'light';
+}
+
+const { eyebrow, note, sprig = 'gold' } = Astro.props;
+const sprigSrc = sprig === 'light' ? '/img/ornament-sprig-light.svg' : '/img/ornament-sprig.svg';
+---
+
+<div class="section-head">
+  <p class="section-head__rule"><span class="eyebrow">{eyebrow}</span></p>
+  <img class="section-head__sprig" src={sprigSrc} alt="" width="120" height="40" aria-hidden="true" />
+  {note && <p class="section-head__note">{note}</p>}
+</div>

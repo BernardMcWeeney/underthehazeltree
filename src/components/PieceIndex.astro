@@ -1,0 +1,53 @@
+---
+import Base from '../layouts/Base.astro';
+import { formatDateShort, pieceHref, type Piece } from '../lib/pieces';
+
+interface Props {
+  title: string;
+  eyebrow: string;
+  description: string;
+  art: string;
+  pieces: Piece[];
+}
+
+const { title, eyebrow, description, art, pieces } = Astro.props;
+---
+
+<Base title={title} description={description} art={art} overlay>
+  <section class="banner">
+    <img class="banner__art" src={`/img/${art}.svg`} alt="" width="1600" height="560" fetchpriority="high" />
+    <div class="shell">
+      <p class="eyebrow">{eyebrow}</p>
+      <h1>{title}</h1>
+      <p>{description}</p>
+    </div>
+  </section>
+
+  <section class="section section--paper">
+    <div class="shell">
+      <div class="index-list">
+        {
+          pieces.map((piece) => (
+            <article class="index-item">
+              <img
+                class="index-item__art"
+                src={`/img/${piece.data.art}.svg`}
+                alt=""
+                width="120"
+                height="84"
+                loading="lazy"
+              />
+              <div>
+                <h2>
+                  <a href={pieceHref(piece.collection, piece.id)}>{piece.data.title}</a>
+                </h2>
+                <p>{piece.data.excerpt}</p>
+              </div>
+              <p class="index-item__meta">{formatDateShort(piece.data.date)}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</Base>
