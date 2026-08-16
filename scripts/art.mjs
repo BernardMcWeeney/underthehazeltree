@@ -422,8 +422,10 @@ function defs(palette, { sunX = 0.7, sunY = 0.22 } = {}) {
   </defs>`;
 }
 
-const frame = (w, h, body, viewBox) =>
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox ?? `0 0 ${w} ${h}`}" width="${w}" height="${h}" role="img">${body}</svg>\n`;
+const frame = (w, h, body, { viewBox, slice } = {}) =>
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox ?? `0 0 ${w} ${h}`}" width="${w}" height="${h}"${
+    slice ? ` preserveAspectRatio="${slice} slice"` : ''
+  } role="img">${body}</svg>\n`;
 
 /** A whisper of film grain — enough to break up the flat vector fills. */
 const grainLayer = (w, h) =>
@@ -787,15 +789,28 @@ function sceneWinter(rng, w, h, palette) {
   return s;
 }
 
-/** A desk by a window: notebook, cup, and a jar of cuttings. */
+/**
+ * A desk by a window: notebook, cup, and a jar of cuttings.
+ *
+ * Unlike the landscapes, an interior can't just be stretched — a window twice
+ * as wide as it is tall stops reading as a window. So everything here is sized
+ * from the frame's height and laid out around its centre, which means the same
+ * room composes correctly whether it's a square card or a wide banner.
+ */
 function sceneDesk(rng, w, h, palette) {
+  const u = h;
+  const cx = w / 2;
   let s = defs(palette, { sunX: 0.26, sunY: 0.22 });
-  s += `<rect width="${w}" height="${h}" fill="${mix(palette.skyTop, '#191309', 0.45)}"/>`;
+  s += `<rect width="${w}" height="${h}" fill="${mix(palette.skyTop, '#191309', 0.38)}"/>`;
 
-  const wx = w * 0.08;
-  const wy = h * 0.08;
-  const ww = w * 0.42;
-  const wh = h * 0.46;
+  const wx = cx - u * 0.42;
+  const wy = u * 0.15;
+  const ww = u * 0.42;
+  const wh = u * 0.42;
+  // Daylight spilling onto the wall around the window
+  s += `<ellipse cx="${n(wx + ww / 2)}" cy="${n(wy + wh / 2)}" rx="${n(ww * 1.35)}" ry="${n(
+    wh * 1.3,
+  )}" fill="${palette.sun}" opacity=".1" filter="url(#soften)"/>`;
   s += `<rect x="${n(wx)}" y="${n(wy)}" width="${n(ww)}" height="${n(wh)}" rx="4" fill="${mix(
     '#9fae7a',
     palette.skyLow,
@@ -816,82 +831,94 @@ function sceneDesk(rng, w, h, palette) {
     palette.bark
   }" stroke-width="11"/>`;
 
-  // Light falling into the room
-  s += `<path d="M ${n(wx)} ${n(wy + wh)} L ${n(wx + ww)} ${n(wy + wh)} L ${n(w * 0.95)} ${n(h)} L ${n(w * 0.02)} ${n(
-    h,
-  )} Z" fill="${palette.sun}" opacity=".12"/>`;
+  // Light falling into the room, widening as it comes
+  s += `<path d="M ${n(wx)} ${n(wy + wh)} L ${n(wx + ww)} ${n(wy + wh)} L ${n(cx + u * 0.62)} ${n(h)} L ${n(
+    cx - u * 0.72,
+  )} ${n(h)} Z" fill="${palette.sun}" opacity=".12"/>`;
 
-  const tableY = h * 0.66;
+  const tableY = u * 0.66;
   s += `<rect x="0" y="${n(tableY)}" width="${w}" height="${n(h - tableY)}" fill="${mix(
     '#6b4a2a',
     palette.bark,
     0.4,
   )}"/>`;
   s += `<rect x="0" y="${n(tableY)}" width="${w}" height="7" fill="${palette.barkLit}" opacity=".55"/>`;
-  for (let i = 0; i < 14; i++) {
+  for (let i = 0; i < 16; i++) {
     const y = tableY + 10 + rng() * (h - tableY);
-    s += `<path d="M ${n(rng() * w * 0.4)} ${n(y)} h ${n(w * (0.15 + rng() * 0.45))}" stroke="${
+    s += `<path d="M ${n(rng() * w)} ${n(y)} h ${n(u * (0.3 + rng() * 0.9))}" stroke="${
       palette.barkLit
-    }" stroke-width="1" opacity="${o(0.08 + rng() * 0.14)}"/>`;
+    }" stroke-width="1" opacity="${o(0.07 + rng() * 0.13)}"/>`;
   }
 
   // Open notebook, catching the window light
-  s += `<g transform="rotate(-4 ${n(w * 0.42)} ${n(tableY + h * 0.1)})">
-    <rect x="${n(w * 0.18)}" y="${n(tableY + h * 0.05)}" width="${n(w * 0.48)}" height="${n(
-      h * 0.21,
-    )}" rx="3" fill="#f2e9d2"/>
-    <rect x="${n(w * 0.18)}" y="${n(tableY + h * 0.05)}" width="${n(w * 0.24)}" height="${n(
-      h * 0.21,
-    )}" rx="3" fill="#e3d7b8"/>
-    <line x1="${n(w * 0.42)}" y1="${n(tableY + h * 0.05)}" x2="${n(w * 0.42)}" y2="${n(
-      tableY + h * 0.26,
-    )}" stroke="${palette.bark}" stroke-width="1.4" opacity=".45"/>`;
+  const nbX = cx - u * 0.26;
+  const nbW = u * 0.48;
+  const nbY = tableY + u * 0.05;
+  const nbH = u * 0.21;
+  s += `<g transform="rotate(-4 ${n(cx)} ${n(nbY + nbH / 2)})">
+    <rect x="${n(nbX)}" y="${n(nbY)}" width="${n(nbW)}" height="${n(nbH)}" rx="3" fill="#f2e9d2"/>
+    <rect x="${n(nbX)}" y="${n(nbY)}" width="${n(nbW / 2)}" height="${n(nbH)}" rx="3" fill="#e3d7b8"/>
+    <line x1="${n(nbX + nbW / 2)}" y1="${n(nbY)}" x2="${n(nbX + nbW / 2)}" y2="${n(nbY + nbH)}" stroke="${
+      palette.bark
+    }" stroke-width="1.4" opacity=".45"/>`;
   for (let i = 0; i < 8; i++) {
-    const ly = tableY + h * 0.08 + i * h * 0.021;
-    s += `<line x1="${n(w * 0.45)}" y1="${n(ly)}" x2="${n(w * 0.45 + w * (0.08 + rng() * 0.12))}" y2="${n(
+    const ly = nbY + u * 0.03 + i * u * 0.021;
+    s += `<line x1="${n(nbX + nbW * 0.56)}" y1="${n(ly)}" x2="${n(nbX + nbW * (0.6 + rng() * 0.32))}" y2="${n(
       ly,
     )}" stroke="${palette.bark}" stroke-width="1.5" opacity="${o(0.3 + rng() * 0.3)}" stroke-linecap="round"/>`;
   }
   s += `</g>`;
 
-  // Pen
-  s += `<path d="M ${n(w * 0.3)} ${n(h * 0.93)} l ${n(w * 0.16)} ${n(-h * 0.03)}" stroke="${mix(
+  // Pen resting against the notebook
+  s += `<path d="M ${n(nbX + nbW * 0.16)} ${n(nbY + nbH * 1.15)} l ${n(u * 0.16)} ${n(-u * 0.03)}" stroke="${mix(
     '#3a2a1a',
     palette.bark,
     0.2,
   )}" stroke-width="5" stroke-linecap="round"/>`;
 
   // Cup of tea
-  const cupX = w * 0.78;
-  const cupY = tableY + h * 0.13;
-  s += `<path d="M ${n(cupX - 27)} ${n(cupY - 27)} h 54 v 31 a 27 27 0 0 1 -54 0 Z" fill="#ddd0b4"/>`;
-  s += `<path d="M ${n(cupX + 27)} ${n(cupY - 18)} a 15 15 0 0 1 0 28" fill="none" stroke="#ddd0b4" stroke-width="6"/>`;
-  s += `<ellipse cx="${n(cupX)}" cy="${n(cupY - 27)}" rx="27" ry="7" fill="${mix('#4a3018', palette.bark, 0.25)}"/>`;
+  const cupX = cx + u * 0.32;
+  const cupY = tableY + u * 0.13;
+  const cupR = u * 0.034;
+  s += `<path d="M ${n(cupX - cupR)} ${n(cupY - cupR)} h ${n(cupR * 2)} v ${n(cupR * 1.15)} a ${n(cupR)} ${n(
+    cupR,
+  )} 0 0 1 ${n(-cupR * 2)} 0 Z" fill="#ddd0b4"/>`;
+  s += `<path d="M ${n(cupX + cupR)} ${n(cupY - cupR * 0.66)} a ${n(cupR * 0.55)} ${n(cupR * 0.55)} 0 0 1 0 ${n(
+    cupR * 1.1,
+  )}" fill="none" stroke="#ddd0b4" stroke-width="${n(cupR * 0.22)}"/>`;
+  s += `<ellipse cx="${n(cupX)}" cy="${n(cupY - cupR)}" rx="${n(cupR)}" ry="${n(cupR * 0.26)}" fill="${mix(
+    '#4a3018',
+    palette.bark,
+    0.25,
+  )}"/>`;
   for (let i = 0; i < 3; i++) {
-    s += `<path d="M ${n(cupX - 10 + i * 10)} ${n(cupY - 36)} q 7 -15 0 -28" stroke="${
-      palette.accent
-    }" stroke-width="2" fill="none" opacity=".22"/>`;
+    s += `<path d="M ${n(cupX - cupR * 0.4 + i * cupR * 0.4)} ${n(cupY - cupR * 1.35)} q ${n(cupR * 0.26)} ${n(
+      -cupR * 0.55,
+    )} 0 ${n(-cupR)}" stroke="${palette.accent}" stroke-width="2" fill="none" opacity=".22"/>`;
   }
 
   // Jar of cuttings on the sill
   const jarX = wx + ww * 0.82;
   const jarY = wy + wh;
+  const jarW = u * 0.02;
   const cut = [];
   limb(rng, {
     x: jarX,
-    y: jarY - 42,
+    y: jarY - jarW * 2.6,
     angle: -Math.PI / 2,
-    len: h * 0.075,
+    len: u * 0.075,
     width: 3,
     depth: 3,
     palette,
-    leafSize: 13,
+    leafSize: u * 0.016,
     out: cut,
   });
   s += cut.join('');
-  s += `<path d="M ${n(jarX - 15)} ${n(jarY - 42)} h 30 v 34 a 6 6 0 0 1 -6 6 h -18 a 6 6 0 0 1 -6 -6 Z" fill="${
-    palette.accent
-  }" opacity=".38"/>`;
+  s += `<path d="M ${n(jarX - jarW)} ${n(jarY - jarW * 2.6)} h ${n(jarW * 2)} v ${n(jarW * 2.1)} a ${n(
+    jarW * 0.4,
+  )} ${n(jarW * 0.4)} 0 0 1 ${n(-jarW * 0.4)} ${n(jarW * 0.4)} h ${n(-jarW * 1.2)} a ${n(jarW * 0.4)} ${n(
+    jarW * 0.4,
+  )} 0 0 1 ${n(-jarW * 0.4)} ${n(-jarW * 0.4)} Z" fill="${palette.accent}" opacity=".38"/>`;
 
   s += motes(rng, { w, h, origin: { x: wx + ww * 0.5, y: wy + wh * 0.5 }, count: 10 });
   s += vignetteLayer(w, h);
@@ -1004,23 +1031,33 @@ const artwork = {
   lamplight: ['desk', 'hearth', 800, 800],
   'banner-poems': ['wood', 'wood', 1600, 560],
   'banner-stories': ['coast', 'coast', 1600, 560],
-  'banner-journal': ['desk', 'hearth', 1600, 560, { square: true, cropY: 0.2 }],
+  'banner-journal': ['desk', 'hearth', 1600, 560],
   'banner-about': ['hill', 'goldenHill', 1600, 560],
 };
 
 mkdirSync(OUT, { recursive: true });
 
 const written = [];
-for (const [name, [scene, palette, w, h, opts]] of Object.entries(artwork)) {
-  const rng = mulberry32(seedFrom(name));
-  // `square` scenes are composed for a 1:1 frame; for wide uses we draw the
-  // square and crop to a band with the viewBox rather than stretching it.
-  const drawW = opts?.square ? w : w;
-  const drawH = opts?.square ? w : h;
-  const body = scenes[scene](rng, drawW, drawH, palettes[palette]);
-  const viewBox = opts?.square ? `0 ${n(drawH * opts.cropY)} ${drawW} ${n((h / w) * drawW)}` : undefined;
-  writeFileSync(resolve(OUT, `${name}.svg`), frame(w, h, body, viewBox));
+for (const [name, [scene, palette, w, h]] of Object.entries(artwork)) {
+  writeFileSync(
+    resolve(OUT, `${name}.svg`),
+    frame(w, h, scenes[scene](mulberry32(seedFrom(name)), w, h, palettes[palette])),
+  );
   written.push(name);
+
+  // Square pieces of art double as article headers, which are 16:7. Cropping a
+  // square that hard ruins a composition — an interior ends up as one enormous
+  // window — so each square scene also gets a wide rendition, drawn from the
+  // same seed so the two read as the same place.
+  if (w === h) {
+    const wideW = 1600;
+    const wideH = 700;
+    writeFileSync(
+      resolve(OUT, `${name}-wide.svg`),
+      frame(wideW, wideH, scenes[scene](mulberry32(seedFrom(name)), wideW, wideH, palettes[palette])),
+    );
+    written.push(`${name}-wide`);
+  }
 }
 
 writeFileSync(resolve(OUT, 'ornament-branch.svg'), branchOrnament({}));
