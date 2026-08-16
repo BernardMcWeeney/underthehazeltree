@@ -96,15 +96,32 @@ you when the domain is on the same account.
 
 ### Deploying from GitHub
 
-`.github/workflows/deploy.yml` builds and deploys on every push to `main`. It
-needs two repository secrets:
+There are two ways to deploy on push, and this repository supports either.
+
+**Cloudflare's Git integration (Workers Builds).** Connect the repository under
+**Workers & Pages → underthehazeltree → Settings → Build**, and set:
+
+| Setting | Value |
+| --- | --- |
+| Build command | `npm run build` |
+| Deploy command | `npx wrangler deploy -c dist/server/wrangler.json` |
+
+The deploy command matters. A bare `npx wrangler deploy` will fail here: the
+root `wrangler.jsonc` deliberately carries no `main` or `assets`, because the
+Cloudflare Vite plugin reads that file *during* the build and errors if `main`
+points at output that doesn't exist yet. The build writes a complete,
+ready-to-deploy config to `dist/server/wrangler.json`, and that's the one to
+deploy.
+
+**GitHub Actions.** `.github/workflows/ci.yml` type-checks and builds every push
+and pull request. It also deploys pushes to `main`, but only if the repository
+has these two secrets — without them the deploy step is skipped, so the workflow
+stays green while Cloudflare does the deploying:
 
 | Secret | Where to get it |
 | --- | --- |
 | `CLOUDFLARE_API_TOKEN` | Cloudflare dashboard → My Profile → API Tokens → *Edit Cloudflare Workers* template |
 | `CLOUDFLARE_ACCOUNT_ID` | Workers & Pages overview, right-hand column |
-
-Delete the workflow if you'd rather deploy from your own machine.
 
 ## Notes
 
